@@ -69,6 +69,10 @@ app.get("/", (req, res) => {
   res.send("Strong Believer Server Running");
 });
 
+app.get("/believer", (req, res) => {
+  res.send("You will find here believers!!!");
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
