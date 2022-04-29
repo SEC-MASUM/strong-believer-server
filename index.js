@@ -17,17 +17,48 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
 
 async function run() {
   try {
     await client.connect();
     const eventCollection = client.db("strongBeliever").collection("event");
+    const registeredEventCollection = client
+      .db("strongBeliever")
+      .collection("registeredEvent");
+
     console.log("DB Connected");
+
+    // POST Register as a Volunteer
+    app.post("/registeredEvent", async (req, res) => {
+      const regEvent = req.body;
+      const result = registeredEventCollection.insertOne(regEvent);
+      res.send({ success: true, message: "Registration successful" });
+    });
+
+    // GET Registered Event
+    app.get("/registeredEvent", async (req, res) => {
+      const email = req.query.email;
+      // console.log(email);
+      const query = { email: email };
+      const cursor = registeredEventCollection.find({});
+      const result = await cursor.toArray();
+      // console.log(result);
+      res.send(result);
+    });
+
+    // EVENT API : create new event
+    // http://localhost:5000/addEvent
+    app.post("/addEvent", async (req, res) => {
+      const newEvent = req.body;
+      const result = await eventCollection.insertOne(newEvent);
+      res.send({ success: true, message: "New event is added successfully" });
+    });
+    // GET EVENT : get all event
+    // http://localhost:5000/event
+    app.get("/event", async (req, res) => {
+      const result = await eventCollection.find({}).toArray();
+      res.send(result);
+    });
   } finally {
     // await client.close();
   }
